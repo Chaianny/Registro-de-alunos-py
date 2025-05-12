@@ -8,6 +8,7 @@ fake = Faker('pt_BR')
 from PIL import ImageTk, Image
 from tkcalendar import Calendar, DateEntry
 from datetime import date
+from tkinter.constants import NW
 
 # cores
 co0 = "#2e2d2b"  # Preta
@@ -23,7 +24,7 @@ co9 = "#e9edf5"  # + verde
 # criando janela
 janela = Tk()
 janela.title("")
-janela.geometry('810x535')
+janela.geometry('880x650')
 janela.configure(background=co1)
 janela.resizable(width=False, height=FALSE)
 
@@ -51,22 +52,18 @@ frame_details = setFrameDetails()
 
 def setFrameTable():
     frame = Frame(janela, width=800, height=100, bg=co1, relief=SOLID)
-    frame.grid(row=3, column=0, pady=0, padx=10, sticky=NSEW, columnspan=5)
+    frame.grid(row=3, column=0, pady=0, padx=(10,0), sticky=NSEW, columnspan=5)
     return frame
 frame_table = setFrameTable()
 
 # Logo
-global imagem, imagem_string, l_imagem
-
-app_lg = Image.open('logo.png')
+app_lg = Image.open('Logo.png')
 app_lg = app_lg.resize((50, 50))
 app_lg = ImageTk.PhotoImage(app_lg)
 app_logo = Label(frame_logo, image=app_lg, text="Registro de Alunos", width=850, compound=LEFT, anchor=NW, font=('Verdana 15'), bg=co6, fg=co1)
 app_logo.place(x=5, y=0)
 
-
 # CAMPOS DE ENTRADA
-
 l_nome = Label(frame_details, text="Nome *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
 l_nome.place(x=4, y=10)
 e_nome = Entry(frame_details, width=30, justify='left', relief='solid')
@@ -92,10 +89,10 @@ l_endereco.place(x=220, y=70)
 e_endereco = Entry(frame_details, width=15, justify='left', relief='solid')
 e_endereco.place(x=224, y=100)
 
-l_sexo = Label(frame_details, text="Sexo *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
+l_sexo = Label(frame_details, text="Genero *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
 l_sexo.place(x=127, y=130)
 c_sexo = ttk.Combobox(frame_details, width=7, font=('Ivy 8 bold'), justify='center')
-c_sexo['values'] = ('Mulher cis', 'Homem cis', 'Mulher Trans', 'Homem Trans', 'Não Binário')
+c_sexo['values'] = ('Mulher Cis', 'Homem Cis', 'Mulher Trans', 'Homem Trans', 'Não Binário')
 c_sexo.place(x=130, y=160)
 
 curso_falsos = [fake.job() for _ in range(100)]
@@ -159,9 +156,7 @@ botao_carregar = Button(
     bg=co1,
     fg=co0
 )
-
 botao_carregar.place(x=500 + (130 - 140) // 2, y=150)
-
 
 class RegistrationSystem:
     def __init__(self):
@@ -174,16 +169,14 @@ class RegistrationSystem:
         self.students.append(student_data)
 
 registration_system = RegistrationSystem()
-
-# Adicionando aluno fictício só pra teste visual
-registration_system.add_student((
-    "João da Silva", "joao@email.com", "99999-9999", "Homem cis", "10/05/1990", "Rua das Flores, 123", "Engenheiro de Software"
-))
+registration_system.add_student(("João da Silva", "joao@email.com", "99999-9999", "Homem cis", "10/05/1990", "Rua das Flores, 123", "Engenheiro de Software"))
 
 def mostrar_alunos():
-    list_header = ['id', 'Nome', 'email', 'Telefone', 'sexo', 'Data', 'Endereço', 'Curso']
-
+    list_header = ['id', 'Nome', 'email', 'Telefone', 'Genero', 'Data', 'Endereço', 'Curso']
     df_list = registration_system.view_all_students()
+
+    for widget in frame_table.winfo_children():
+        widget.destroy()
 
     tree_aluno = ttk.Treeview(frame_table, selectmode="extended", columns=list_header, show="headings")
 
@@ -198,14 +191,15 @@ def mostrar_alunos():
 
     hd = ["nw", "nw", "nw", "center", "center", "center", "center", "center"]
     h = [40, 150, 150, 70, 70, 70, 120, 100]
-    
+
     for n, col in enumerate(list_header):
         tree_aluno.heading(col, text=col.title(), anchor=NW)
         tree_aluno.column(col, width=h[n], anchor=hd[n])
 
-    for idx, item in enumerate(df_list):
-        tree_aluno.insert('', 'end', values=[idx+1] + list(item))
+        n+=1
 
+    for idx, item in enumerate(df_list):
+        tree_aluno.insert('', 'end', iid=str(idx), values=[idx+1] + list(item))
 
 # Chamando a Tabela
 mostrar_alunos()
@@ -222,8 +216,6 @@ e_procurar.grid(row=1, column=0, padx=0, sticky=NSEW)
 botao_alterar = Button(frame_procurar, text='Procurar', width=9, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
 botao_alterar.grid(row=1, column=1, padx=0, sticky=NSEW)
 
-
-# Configura o frame para expandir a coluna 0
 frame_botoes.columnconfigure(0, weight=1)
 
 # Botão Adicionar
@@ -231,65 +223,26 @@ imagem_add = Image.open('Add.png')
 imagem_add = imagem_add.resize((25, 25))
 imagem_add = ImageTk.PhotoImage(imagem_add)
 
-botao_adicionar = Button(
-    frame_botoes, 
-    image=imagem_add, 
-    text='Adicionar', 
-    compound=LEFT,
-    font=('Ivy 11'), 
-    bg=co1, 
-    fg=co0,
-    anchor=CENTER,
-    relief=GROOVE,
-    overrelief=RIDGE,
-    padx=5
-)
+botao_adicionar = Button(frame_botoes, image=imagem_add, text='Adicionar', compound=LEFT, font=('Ivy 11'), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5)
 botao_adicionar.image = imagem_add
 botao_adicionar.grid(row=2, column=0, padx=10, pady=5, sticky='we')
-
 
 # Botão Atualizar
 app_img_atualizar = Image.open('Atualizar.png')
 app_img_atualizar = app_img_atualizar.resize((25,25))
 app_img_atualizar = ImageTk.PhotoImage(app_img_atualizar)
 
-botao_atualizar = Button(
-    frame_botoes, 
-    image=app_img_atualizar, 
-    text='Atualizar', 
-    compound=LEFT, 
-    font=("Ivy 11"), 
-    bg=co1, 
-    fg=co0,
-    anchor=CENTER,
-    relief=GROOVE,
-    overrelief=RIDGE,
-    padx=5
-)
+botao_atualizar = Button(frame_botoes, image=app_img_atualizar, text='Atualizar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5, command=mostrar_alunos)
 botao_atualizar.image = app_img_atualizar
 botao_atualizar.grid(row=3, column=0, padx=10, pady=5, sticky='we')
-
 
 # Botão Deletar
 app_img_deletar = Image.open('Deletar.png')
 app_img_deletar = app_img_deletar.resize((25,25))
 app_img_deletar = ImageTk.PhotoImage(app_img_deletar)
 
-botao_deletar = Button(
-    frame_botoes, 
-    image=app_img_deletar, 
-    text='Deletar', 
-    compound=LEFT, 
-    font=("Ivy 11"), 
-    bg=co1, 
-    fg=co0,
-    anchor=CENTER,
-    relief=GROOVE,
-    overrelief=RIDGE,
-    padx=5
-)
+botao_deletar = Button(frame_botoes, image=app_img_deletar, text='Deletar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5)
 botao_deletar.image = app_img_deletar
-botao_deletar.grid(row=3, column=0, padx=10, pady=5, sticky='we')
-
+botao_deletar.grid(row=4, column=0, padx=10, pady=5, sticky='we')
 
 janela.mainloop()

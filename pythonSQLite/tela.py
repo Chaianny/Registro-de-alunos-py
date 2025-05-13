@@ -4,13 +4,15 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog as fd
 from faker import Faker
-fake = Faker('pt_BR')
 from PIL import ImageTk, Image
 from tkcalendar import Calendar, DateEntry
 from datetime import date
 from tkinter.constants import NW
+import sqlite3
 
-# cores
+fake = Faker('pt_BR')
+
+# Cores
 co0 = "#2e2d2b"  # Preta
 co1 = "#feffff"  # Branca   
 co2 = "#e5e5e5"  # grey
@@ -21,17 +23,17 @@ co7 = "#ef5350"  # vermelha
 co8 = "#263238"  # + verde
 co9 = "#e9edf5"  # + verde
 
-# criando janela
+# Criando janela
 janela = Tk()
 janela.title("")
-janela.geometry('880x650')
+janela.geometry('840x540')
 janela.configure(background=co1)
 janela.resizable(width=False, height=FALSE)
 
 style = Style(janela)
 style.theme_use("clam")
 
-# CRIANDO FRAMES
+# Criando frames
 def setFrame(width, height, bg):
     frame = Frame(janela, width=width, height=height, bg=bg )
     frame.grid(row=0, column=0, pady=0, sticky=NSEW, columnspan=5)
@@ -45,25 +47,24 @@ def setFrameBotoes(width, height, bg):
 frame_botoes = setFrameBotoes(100, 200, co1)
 
 def setFrameDetails():
-    frame = Frame(janela, width=800, height=100, bg=co1, relief=SOLID)
+    frame = Frame(janela, width=800, height=230, bg=co1, relief=SOLID)
     frame.grid(row=1, column=1, pady=1, padx=10, sticky=NSEW)
     return frame
 frame_details = setFrameDetails()
 
 def setFrameTable():
     frame = Frame(janela, width=800, height=100, bg=co1, relief=SOLID)
-    frame.grid(row=3, column=0, pady=0, padx=(10,0), sticky=NSEW, columnspan=5)
+    frame.grid(row=3, column=0, pady=0, padx=(10,0), sticky="NSEW", columnspan=5)
     return frame
 frame_table = setFrameTable()
 
 # Logo
-app_lg = Image.open('Logo.png')
-app_lg = app_lg.resize((50, 50))
+app_lg = Image.open('Logo.png').resize((50, 50))
 app_lg = ImageTk.PhotoImage(app_lg)
-app_logo = Label(frame_logo, image=app_lg, text="Registro de Alunos", width=850, compound=LEFT, anchor=NW, font=('Verdana 15'), bg=co6, fg=co1)
+app_logo = Label(frame_logo, image=app_lg, text="Registro de Alunos", width=850, compound=LEFT, anchor=CENTER, font=('Verdana 15'), bg=co6, fg=co1)
 app_logo.place(x=5, y=0)
 
-# CAMPOS DE ENTRADA
+# Campos de entrada
 l_nome = Label(frame_details, text="Nome *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
 l_nome.place(x=4, y=10)
 e_nome = Entry(frame_details, width=30, justify='left', relief='solid')
@@ -86,14 +87,14 @@ data_nascimento.place(x=224, y=40)
 
 l_endereco = Label(frame_details, text="Endereço *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
 l_endereco.place(x=220, y=70)
-e_endereco = Entry(frame_details, width=15, justify='left', relief='solid')
+e_endereco = Entry(frame_details, width=25, justify='left', relief='solid')
 e_endereco.place(x=224, y=100)
 
 l_sexo = Label(frame_details, text="Genero *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
 l_sexo.place(x=127, y=130)
-c_sexo = ttk.Combobox(frame_details, width=7, font=('Ivy 8 bold'), justify='center')
+c_sexo = ttk.Combobox(frame_details, width=13, font=('Ivy 8 bold'), justify='center')
 c_sexo['values'] = ('Mulher Cis', 'Homem Cis', 'Mulher Trans', 'Homem Trans', 'Não Binário')
-c_sexo.place(x=130, y=160)
+c_sexo.place(x=110, y=160)
 
 curso_falsos = [fake.job() for _ in range(100)]
 
@@ -106,7 +107,7 @@ c_curso.place(x=224, y=160)
 def filtrar_cursos(event):
     texto = c_curso.get().lower()
     filtrados = [curso for curso in curso_falsos if texto in curso.lower()]
-    c_curso['values'] = filtrados if filtrados else curso_falsos
+    c_curso['values'] = filtrados or curso_falsos
     c_curso.event_generate('<Down>')
 
 c_curso.bind("<KeyRelease>", filtrar_cursos)
@@ -126,50 +127,104 @@ def preencher_dados_falsos():
     c_curso.set(fake.random_element(elements=curso_falsos))
 
 def escolher_imagem():
-    global imagem, imagem_string, l_imagem
-
-    imagem_path = fd.askopenfilename()
-    if imagem_path:
+    global imagem, imagem_string
+    if imagem_path := fd.askopenfilename():
         imagem_string = imagem_path
-        nova_imagem = Image.open(imagem_string)
-        nova_imagem = nova_imagem.resize((130, 130))
+        nova_imagem = Image.open(imagem_string).resize((130, 130))
         imagem = ImageTk.PhotoImage(nova_imagem)
         l_imagem.configure(image=imagem)
-        l_imagem.image = imagem  
-        botao_carregar.config(text="Trocar de Foto".upper())
+        l_imagem.image = imagem
+        botao_carregar.config(text="Trocar de Foto", width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 10 bold'))
 
-imagem = Image.open('Foto.png')
-imagem = imagem.resize((130, 130))
+imagem = Image.open('Foto.png').resize((130, 130))
 imagem = ImageTk.PhotoImage(imagem)
 l_imagem = Label(frame_details, image=imagem, bg=co1, fg=co6)
-l_imagem.place(x=495, y=10)  
+l_imagem.place(x=440, y=10)  
 
-botao_carregar = Button(
-    frame_details,
-    command=escolher_imagem,
-    text='Carregar Foto'.upper(),
-    width=20,
-    compound=CENTER,
-    anchor=CENTER,
-    overrelief=RIDGE,
-    font=('Ivy 7 bold'),
-    bg=co1,
-    fg=co0
-)
-botao_carregar.place(x=500 + (130 - 140) // 2, y=150)
+botao_carregar = Button(frame_details, command=escolher_imagem, text='CARREGAR FOTO', width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
+botao_carregar.place(x=445 + (130 - 140) // 2, y=150)
 
+# Classe para o banco de dados
 class RegistrationSystem:
     def __init__(self):
-        self.students = []
+        self.conn = sqlite3.connect('students.db')
+        self.c = self.conn.cursor()
+        self.create_table()
+
+    def create_table(self):
+        self.c.execute('''CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL, gender TEXT NOT NULL, birth TEXT NOT NULL, address TEXT NOT NULL, course TEXT NOT NULL, picture TEXT NOT NULL)''')
+        self.conn.commit()
+
+    def register_student(self, student):
+        self.c.execute("INSERT INTO students(name, email, phone, gender, birth, address, course, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", student)
+        self.conn.commit()
+        messagebox.showinfo('Sucesso', 'Registro realizado com sucesso!')
 
     def view_all_students(self):
-        return self.students
+        self.c.execute("SELECT * FROM students")
+        return self.c.fetchall()
+    
+    def update_student(self, update_student):
+        self.c.execute("""
+            UPDATE students SET 
+                name = ?, 
+                email = ?, 
+                phone = ?, 
+                gender = ?, 
+                birth = ?, 
+                address = ?, 
+                course = ?, 
+                picture = ? 
+            WHERE id = ?
+        """, (
+            update_student["name"],
+            update_student["email"],
+            update_student["phone"],
+            update_student["gender"],
+            update_student["birth"],
+            update_student["address"],
+            update_student["course"],
+            update_student["picture"],
+            update_student["id"]
+        ))
+        self.conn.commit()
+        messagebox.showinfo('Sucesso', f'Aluno com ID {update_student["id"]} atualizado com sucesso!')
 
-    def add_student(self, student_data):
-        self.students.append(student_data)
 
 registration_system = RegistrationSystem()
-registration_system.add_student(("João da Silva", "joao@email.com", "99999-9999", "Homem cis", "10/05/1990", "Rua das Flores, 123", "Engenheiro de Software"))
+
+def atualizar_aluno():
+        
+        dados = {
+            "name":  e_nome.get(),
+            "email":  e_email.get(),
+            "phone":  e_tel.get(),
+            "gender":  c_sexo.get(),
+            "birth":  data_nascimento.get_date().strftime('%d/%m/%Y'),
+            "address":  e_endereco.get(),
+            "course":  c_curso.get(), 
+            "id": e_procurar.get(),
+            "picture":  imagem_string if 'imagem_string' in globals() else ""
+        }
+        registration_system.update_student(dados)
+        mostrar_alunos()
+
+def adicionar_aluno():
+    nome = e_nome.get()
+    email = e_email.get()
+    telefone = e_tel.get()
+    genero = c_sexo.get()
+    data = data_nascimento.get_date().strftime('%d/%m/%Y')
+    endereco = e_endereco.get()
+    curso = c_curso.get()
+    foto = imagem_string if 'imagem_string' in globals() else ""
+
+    if nome and email and telefone:
+        dados = (nome, email, telefone, genero, data, endereco, curso, foto)
+        registration_system.register_student(dados)
+        mostrar_alunos()
+    else:
+        messagebox.showwarning("Campos obrigatórios", "Por favor, preencha os campos obrigatórios (*).")
 
 def mostrar_alunos():
     list_header = ['id', 'Nome', 'email', 'Telefone', 'Genero', 'Data', 'Endereço', 'Curso']
@@ -179,7 +234,6 @@ def mostrar_alunos():
         widget.destroy()
 
     tree_aluno = ttk.Treeview(frame_table, selectmode="extended", columns=list_header, show="headings")
-
     vsb = ttk.Scrollbar(frame_table, orient="vertical", command=tree_aluno.yview)
     hsb = ttk.Scrollbar(frame_table, orient='horizontal', command=tree_aluno.xview)
 
@@ -196,15 +250,11 @@ def mostrar_alunos():
         tree_aluno.heading(col, text=col.title(), anchor=NW)
         tree_aluno.column(col, width=h[n], anchor=hd[n])
 
-        n+=1
-
     for idx, item in enumerate(df_list):
-        tree_aluno.insert('', 'end', iid=str(idx), values=[idx+1] + list(item))
+        tree_aluno.insert('', 'end', iid=str(idx), values=item)
 
-# Chamando a Tabela
 mostrar_alunos()
 
-# Procurando Aluno
 frame_procurar = Frame(frame_botoes, width=40, height=55, bg=co1, relief=RAISED)
 frame_procurar.grid(row=0, column=0, padx=10, sticky=NSEW)
 
@@ -218,27 +268,21 @@ botao_alterar.grid(row=1, column=1, padx=0, sticky=NSEW)
 
 frame_botoes.columnconfigure(0, weight=1)
 
-# Botão Adicionar
-imagem_add = Image.open('Add.png')
-imagem_add = imagem_add.resize((25, 25))
+imagem_add = Image.open('Add.png').resize((25, 25))
 imagem_add = ImageTk.PhotoImage(imagem_add)
 
-botao_adicionar = Button(frame_botoes, image=imagem_add, text='Adicionar', compound=LEFT, font=('Ivy 11'), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5)
+botao_adicionar = Button(frame_botoes, image=imagem_add, text='Adicionar', compound=LEFT, font=('Ivy 11'), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5, command=adicionar_aluno)
 botao_adicionar.image = imagem_add
 botao_adicionar.grid(row=2, column=0, padx=10, pady=5, sticky='we')
 
-# Botão Atualizar
-app_img_atualizar = Image.open('Atualizar.png')
-app_img_atualizar = app_img_atualizar.resize((25,25))
+app_img_atualizar = Image.open('Atualizar.png').resize((25,25))
 app_img_atualizar = ImageTk.PhotoImage(app_img_atualizar)
 
-botao_atualizar = Button(frame_botoes, image=app_img_atualizar, text='Atualizar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5, command=mostrar_alunos)
+botao_atualizar = Button(frame_botoes, image=app_img_atualizar, text='Atualizar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5, command=atualizar_aluno)
 botao_atualizar.image = app_img_atualizar
 botao_atualizar.grid(row=3, column=0, padx=10, pady=5, sticky='we')
 
-# Botão Deletar
-app_img_deletar = Image.open('Deletar.png')
-app_img_deletar = app_img_deletar.resize((25,25))
+app_img_deletar = Image.open('Deletar.png').resize((25,25))
 app_img_deletar = ImageTk.PhotoImage(app_img_deletar)
 
 botao_deletar = Button(frame_botoes, image=app_img_deletar, text='Deletar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5)

@@ -25,7 +25,7 @@ class RegistrationSystem:
                         (student))
         self.conn.commit()
         # Mostrando mesnsagem de sucesso
-        messagebox.showinfo('Success', 'Registration successful!')
+        messagebox.showinfo('Sucesso', 'Registo com sucesso!')
         print("Registration successful!")
 
     def view_all_students(self):
@@ -35,15 +35,13 @@ class RegistrationSystem:
 
     def search_student(self, id):
         self.c.execute("SELECT * FROM students WHERE id=?", (id,))
-        data = self.c.fetchone()
-        if data:
+        if data := self.c.fetchone():
             return data
         else:
             messagebox.showerror('Erro', f'No student with ID {id} found.')
 
     def update_student(self, new_values):
-        data = new_values
-        if data:
+        if data := new_values:
             query = "UPDATE students SET name=?, email=?, phone=?, gender=?, birth=?, address=?, course=?, picture=? WHERE id=?"
             self.c.execute(query,new_values)
             self.conn.commit()
@@ -54,14 +52,13 @@ class RegistrationSystem:
 
     def delete_student(self, id):
         self.c.execute("SELECT * FROM students WHERE id=?", (id,))
-        data = self.c.fetchone()
-        if data:
+        if data := self.c.fetchone():
             self.c.execute("DELETE FROM students WHERE id=?", (id,))
             self.conn.commit()
-            messagebox.showinfo('Success', f"Student with ID {id} has been deleted.")
+            messagebox.showinfo('Sucesso', f"Student with ID {id} has been deleted.")
             print(f"Student with ID '{id}' has been deleted.")
         else:
-            messagebox.showerror('Error', f"No student with ID {id} found.")
+            messagebox.showerror('Erro', f"No student with ID {id} found.")
             print(f"No student with ID '{id}' found.")
 
 

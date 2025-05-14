@@ -1,3 +1,4 @@
+from ast import Delete
 from tkinter.ttk import *
 from tkinter import *
 from tkinter import ttk
@@ -134,7 +135,7 @@ def escolher_imagem():
         imagem = ImageTk.PhotoImage(nova_imagem)
         l_imagem.configure(image=imagem)
         l_imagem.image = imagem
-        botao_carregar.config(text="Trocar de Foto", width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 10 bold'))
+        botao_carregar.config(text="Trocar de Foto", width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'))
 
 imagem = Image.open('Foto.png').resize((130, 130))
 imagem = ImageTk.PhotoImage(imagem)
@@ -147,12 +148,25 @@ botao_carregar.place(x=445 + (130 - 140) // 2, y=150)
 # Classe para o banco de dados
 class RegistrationSystem:
     def __init__(self):
-        self.conn = sqlite3.connect('students.db')
+        self.conn = sqlite3.connect("students.db")  # Ajuste o nome conforme seu banco
         self.c = self.conn.cursor()
         self.create_table()
 
+    def search_studeent(self):
+        return self._extracted_from_view_all_students_2("SELECT * FROM student_id")
+    
+
     def create_table(self):
-        self.c.execute('''CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL, gender TEXT NOT NULL, birth TEXT NOT NULL, address TEXT NOT NULL, course TEXT NOT NULL, picture TEXT NOT NULL)''')
+        self.c.execute('''CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            gender TEXT NOT NULL,
+            birth TEXT NOT NULL,
+            address TEXT NOT NULL,
+            course TEXT NOT NULL,
+            picture TEXT NOT NULL)''')
         self.conn.commit()
 
     def register_student(self, student):
@@ -161,37 +175,25 @@ class RegistrationSystem:
         messagebox.showinfo('Sucesso', 'Registro realizado com sucesso!')
 
     def view_all_students(self):
-        self.c.execute("SELECT * FROM students")
-        return self.c.fetchall()
-    
-    def update_student(self, update_student):
-        self.c.execute("""
-            UPDATE students SET 
-                name = ?, 
-                email = ?, 
-                phone = ?, 
-                gender = ?, 
-                birth = ?, 
-                address = ?, 
-                course = ?, 
-                picture = ? 
-            WHERE id = ?
-        """, (
-            update_student["name"],
-            update_student["email"],
-            update_student["phone"],
-            update_student["gender"],
-            update_student["birth"],
-            update_student["address"],
-            update_student["course"],
-            update_student["picture"],
-            update_student["id"]
-        ))
-        self.conn.commit()
-        messagebox.showinfo('Sucesso', f'Aluno com ID {update_student["id"]} atualizado com sucesso!')
+        return self._extracted_from_view_all_students_2("SELECT * FROM students")
 
+    # TODO Rename this here and in `search_studeent` and `view_all_students`
+    def _extracted_from_view_all_students_2(self, arg0):
+        self.c.execute(arg0)
+        resultado = self.c.fetchall()
+        return resultado
+
+    def delete_student(self, student_id):
+        self.c.execute("DELETE FROM students WHERE id = ?", (student_id))
+        self.conn.commit()
+        messagebox.showinfo("Sucesso", f"Aluno com ID {student_id} deletado com sucesso!")
 
 registration_system = RegistrationSystem()
+
+def deletar_aluno():
+    student_id = e_procurar.get()
+    registration_system.delete_student(student_id=student_id) 
+    mostrar_alunos()
 
 def atualizar_aluno():
         
@@ -208,7 +210,7 @@ def atualizar_aluno():
         }
         registration_system.update_student(dados)
         mostrar_alunos()
-
+        
 def adicionar_aluno():
     nome = e_nome.get()
     email = e_email.get()
@@ -262,10 +264,11 @@ l_nome = Label(frame_procurar, text= " Procurar aluno [Entra ID]", anchor=NW, fo
 l_nome.grid(row=0, column=0, padx=0, sticky=NSEW)
 e_procurar = Entry(frame_procurar, width=5, justify='left', relief='solid', font=('Ivy 10'))
 e_procurar.grid(row=1, column=0, padx=0, sticky=NSEW)
+e_procurar.insert(END, "123")
 
 botao_alterar = Button(frame_procurar, text='Procurar', width=9, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
 botao_alterar.grid(row=1, column=1, padx=0, sticky=NSEW)
-
+ 
 frame_botoes.columnconfigure(0, weight=1)
 
 imagem_add = Image.open('Add.png').resize((25, 25))
@@ -285,7 +288,7 @@ botao_atualizar.grid(row=3, column=0, padx=10, pady=5, sticky='we')
 app_img_deletar = Image.open('Deletar.png').resize((25,25))
 app_img_deletar = ImageTk.PhotoImage(app_img_deletar)
 
-botao_deletar = Button(frame_botoes, image=app_img_deletar, text='Deletar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5)
+botao_deletar = Button(frame_botoes, image=app_img_deletar, text='Deletar', compound=LEFT, font=("Ivy 11"), bg=co1, fg=co0, anchor=CENTER, relief=GROOVE, overrelief=RIDGE, padx=5, command=deletar_aluno)
 botao_deletar.image = app_img_deletar
 botao_deletar.grid(row=4, column=0, padx=10, pady=5, sticky='we')
 

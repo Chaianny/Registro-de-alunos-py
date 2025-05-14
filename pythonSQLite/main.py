@@ -62,5 +62,5 @@ class RegistrationSystem:
             print(f"No student with ID '{id}' found.")
 
 
-# create a registration system instance
+
 registration_system = RegistrationSystem()

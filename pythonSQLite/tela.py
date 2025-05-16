@@ -1,13 +1,15 @@
+import contextlib
 from ast import Delete
 from tkinter.ttk import *
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog as fd
+from turtle import goto
 from faker import Faker
 from PIL import ImageTk, Image
 from tkcalendar import Calendar, DateEntry
-from datetime import date
+from datetime import date, datetime
 from tkinter.constants import NW
 import sqlite3
 
@@ -27,7 +29,7 @@ co9 = "#e9edf5"  # + verde
 # Criando janela
 janela = Tk()
 janela.title("")
-janela.geometry('840x540')
+janela.geometry('808x540')
 janela.configure(background=co1)
 janela.resizable(width=False, height=FALSE)
 
@@ -135,15 +137,15 @@ def escolher_imagem():
         imagem = ImageTk.PhotoImage(nova_imagem)
         l_imagem.configure(image=imagem)
         l_imagem.image = imagem
-        botao_carregar.config(text="Trocar de Foto", width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'))
+        botao_carregar.config(text="Trocar de Foto", width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
 
 imagem = Image.open('Foto.png').resize((130, 130))
 imagem = ImageTk.PhotoImage(imagem)
 l_imagem = Label(frame_details, image=imagem, bg=co1, fg=co6)
-l_imagem.place(x=440, y=10)  
+l_imagem.place(x=420, y=10)  
 
 botao_carregar = Button(frame_details, command=escolher_imagem, text='CARREGAR FOTO', width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
-botao_carregar.place(x=445 + (130 - 140) // 2, y=150)
+botao_carregar.place(x=425 + (130 - 140) // 2, y=150)
 
 # Classe para o banco de dados
 class RegistrationSystem:
@@ -152,9 +154,51 @@ class RegistrationSystem:
         self.c = self.conn.cursor()
         self.create_table()
 
-    def search_studeent(self):
+    def search_student(self):
         return self._extracted_from_view_all_students_2("SELECT * FROM student_id")
     
+    def search_student_by_id(self, student_id):
+        self.c.execute("SELECT *FROM students WHERE id = ?",(student_id))
+        return self.c.fetchone
+    
+    def procurar_aluno():
+        # sourcery skip: extract-duplicate-method, instance-method-first-arg-name
+        student_id = e_procurar.get()
+        if not student_id.isdigit():
+            messagebox.showerror("Error", "Digite um ID {student_id} válido.")
+            return
+        if resultado := registration_system.search_student_by_id(student_id):
+            _, name, email, phone, gender, birth, address, course, picture = resultado
+
+        e_nome.delete(0, END)
+        e_nome.insert(0, name)
+
+        e_email.delete(0, END)
+        e_email.insert(0, email)
+
+        e_tel.delete(0, END)
+        e_tel.insert(0, phone)
+
+        c_sexo.set(gender)
+
+        data_nascimento.set_date(birth)
+
+        e_endereco.delete(0, END)
+        e_endereco.insert(0, address)
+
+        c_curso.set(course)
+
+        global imagem_string, imagem
+        imagem_string = picture
+        if picture:
+            with contextlib.suppress(Exception):
+                nova_imagem = Image.open(picture).resize((130, 130))
+                imagem = ImageTk.PhotoImage(nova_imagem)
+                l_imagem.configure(image=imagem)
+                l_imagem.image = imagem
+                botao_carregar.config(text="Trocar de Foto")
+        else:
+            messagebox.showinfo("Não encontrado", f"Aluno com ID {student_id} não foi encontrado.")
 
     def create_table(self):
         self.c.execute('''CREATE TABLE IF NOT EXISTS students (
@@ -211,6 +255,59 @@ def atualizar_aluno():
         registration_system.update_student(dados)
         mostrar_alunos()
         
+def procurar_aluno():
+    aluno_id = e_procurar.get()
+
+    if not aluno_id:
+        messagebox.showwarning("Aviso", "Digite um ID para procurar.")
+        return
+
+    if resultado := registration_system.buscar_por_id(aluno_id):
+        _extracted_from_procurar_aluno(resultado)
+    else:
+        messagebox.showinfo("Não encontrado", f"Nenhum aluno com ID {aluno_id} foi encontrado.")
+
+
+# TODO Rename this here and in `procurar_aluno`
+def _extracted_from_procurar_aluno(resultado):
+    # Desempacotar os dados retornados
+    name, email, phone, gender, birth, address, course, picture = resultado
+
+    # Preencher os campos da interface
+    e_nome.delete(0, Tk.END)
+    e_nome.insert(0, name)
+
+    e_email.delete(0, Tk.END)
+    e_email.insert(0, email)
+
+    _extracted_from_procurar_aluno(e_tel, phone, c_sexo, gender)
+    # Converter string da data para o formato aceito pelo DateEntry
+    data_formatada = datetime.strptime(birth, '%d/%m/%Y')
+    data_nascimento.set_date(data_formatada)
+
+    _extracted_from_procurar_aluno(e_endereco, address, c_curso, course)
+    # Se quiser lidar com imagem, você pode carregar aqui
+    global imagem_string
+    imagem_string = imagem
+
+
+# TODO Rename this here and in `procurar_aluno`
+def _extracted_from_procurar_aluno(arg0, arg1, arg2, arg3):
+    arg0.delete(0, Tk.END)
+    arg0.insert(0, arg1)
+
+    arg2.set(arg3)
+
+def buscar_por_id(self, aluno_id):
+    cursor = self.conn.cursor()
+    cursor.execute("""
+        SELECT name, email, phone, gender, birth, address, course, picture 
+        FROM students 
+        WHERE id = ?
+    """, (aluno_id,))
+    return cursor.fetchone()
+
+
 def adicionar_aluno():
     nome = e_nome.get()
     email = e_email.get()
@@ -220,7 +317,6 @@ def adicionar_aluno():
     endereco = e_endereco.get()
     curso = c_curso.get()
     foto = imagem_string if 'imagem_string' in globals() else ""
-
     if nome and email and telefone:
         dados = (nome, email, telefone, genero, data, endereco, curso, foto)
         registration_system.register_student(dados)
@@ -268,7 +364,7 @@ e_procurar.insert(END, "123")
 
 botao_alterar = Button(frame_procurar, text='Procurar', width=9, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
 botao_alterar.grid(row=1, column=1, padx=0, sticky=NSEW)
- 
+
 frame_botoes.columnconfigure(0, weight=1)
 
 imagem_add = Image.open('Add.png').resize((25, 25))

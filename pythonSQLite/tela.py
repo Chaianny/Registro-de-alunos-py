@@ -162,43 +162,13 @@ class RegistrationSystem:
         return self.c.fetchone
     
     def procurar_aluno():
-        # sourcery skip: extract-duplicate-method, instance-method-first-arg-name
         student_id = e_procurar.get()
         if not student_id.isdigit():
             messagebox.showerror("Error", "Digite um ID {student_id} válido.")
             return
         if resultado := registration_system.search_student_by_id(student_id):
             _, name, email, phone, gender, birth, address, course, picture = resultado
-
-        e_nome.delete(0, END)
-        e_nome.insert(0, name)
-
-        e_email.delete(0, END)
-        e_email.insert(0, email)
-
-        e_tel.delete(0, END)
-        e_tel.insert(0, phone)
-
-        c_sexo.set(gender)
-
-        data_nascimento.set_date(birth)
-
-        e_endereco.delete(0, END)
-        e_endereco.insert(0, address)
-
-        c_curso.set(course)
-
-        global imagem_string, imagem
-        imagem_string = picture
-        if picture:
-            with contextlib.suppress(Exception):
-                nova_imagem = Image.open(picture).resize((130, 130))
-                imagem = ImageTk.PhotoImage(nova_imagem)
-                l_imagem.configure(image=imagem)
-                l_imagem.image = imagem
-                botao_carregar.config(text="Trocar de Foto")
-        else:
-            messagebox.showinfo("Não encontrado", f"Aluno com ID {student_id} não foi encontrado.")
+            
 
     def create_table(self):
         self.c.execute('''CREATE TABLE IF NOT EXISTS students (
@@ -219,13 +189,9 @@ class RegistrationSystem:
         messagebox.showinfo('Sucesso', 'Registro realizado com sucesso!')
 
     def view_all_students(self):
-        return self._extracted_from_view_all_students_2("SELECT * FROM students")
+        return self.c.execute("SELECT * FROM students")
 
-    # TODO Rename this here and in `search_studeent` and `view_all_students`
-    def _extracted_from_view_all_students_2(self, arg0):
-        self.c.execute(arg0)
-        resultado = self.c.fetchall()
-        return resultado
+
 
     def delete_student(self, student_id):
         self.c.execute("DELETE FROM students WHERE id = ?", (student_id))
@@ -240,21 +206,53 @@ def deletar_aluno():
     mostrar_alunos()
 
 def atualizar_aluno():
-        
-        dados = {
-            "name":  e_nome.get(),
-            "email":  e_email.get(),
-            "phone":  e_tel.get(),
-            "gender":  c_sexo.get(),
-            "birth":  data_nascimento.get_date().strftime('%d/%m/%Y'),
-            "address":  e_endereco.get(),
-            "course":  c_curso.get(), 
-            "id": e_procurar.get(),
-            "picture":  imagem_string if 'imagem_string' in globals() else ""
-        }
-        registration_system.update_student(dados)
-        mostrar_alunos()
-        
+    aluno_id = e_procurar.get().strip()
+    if not aluno_id.isdigit():
+        messagebox.showwarning("ID inválido", "Digite um ID válido para atualizar.")
+        return
+
+    dados = {
+        "id": int(aluno_id),
+        "name": e_nome.get(),
+        "email": e_email.get(),
+        "phone": e_tel.get(),
+        "gender": c_sexo.get(),
+        "birth": data_nascimento.get_date().strftime('%d/%m/%Y'),
+        "address": e_endereco.get(),
+        "course": c_curso.get(),
+        "picture": imagem_string if 'imagem_string' in globals() else ""
+    }
+    registration_system.update_student(dados)
+    messagebox.showinfo("Sucesso", "Dados atualizados com sucesso!")
+
+
+def update_student(self, dados):
+    cursor = self.conn.cursor()
+    cursor.execute("""
+        UPDATE students SET
+        name = ?,
+        email = ?,
+        phone = ?,  
+        gender = ?,
+        birth = ?,
+        address = ?,
+        course = ?,
+        picture = ?
+        WHERE id = ?
+    """, (
+        dados["name"],
+        dados["email"],
+        dados["phone"],
+        dados["gender"],
+        dados["birth"],
+        dados["address"],   
+        dados["course"],
+        dados["picture"],
+        dados["id"]
+    ))
+    self.conn.commit()  
+            
+
 def procurar_aluno():
     aluno_id = e_procurar.get()
 
@@ -389,3 +387,4 @@ botao_deletar.image = app_img_deletar
 botao_deletar.grid(row=4, column=0, padx=10, pady=5, sticky='we')
 
 janela.mainloop()
+

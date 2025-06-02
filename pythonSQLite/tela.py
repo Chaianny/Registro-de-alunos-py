@@ -36,6 +36,17 @@ janela.resizable(width=False, height=FALSE)
 style = Style(janela)
 style.theme_use("clam")
 
+class Student:
+    def __init__(self, id, name, email, tel, sexo, data_nascimento, endereco, curso, image):
+        self.id = id
+        self.name = name
+        self.email = email
+        self.tel = tel
+        self.data_nascimento = data_nascimento
+        self.endereco = endereco
+        self.sexo = sexo
+        self.curso = curso
+        self.image = image
 # Criando frames
 def setFrame(width, height, bg):
     frame = Frame(janela, width=width, height=height, bg=bg )
@@ -68,66 +79,53 @@ app_logo = Label(frame_logo, image=app_lg, text="Registro de Alunos", width=850,
 app_logo.place(x=5, y=0)
 
 # Campos de entrada
-l_nome = Label(frame_details, text="Nome *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_nome.place(x=4, y=10)
-e_nome = Entry(frame_details, width=30, justify='left', relief='solid')
-e_nome.place(x=7, y=40)
+label_nome = Label(frame_details, text="Nome *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4).place(x=4, y=10)
+input_nome = Entry(frame_details, width=30, justify='left', relief='solid')
+input_nome.place(x=7, y=40)
 
-l_email = Label(frame_details, text="Email *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_email.place(x=4, y=70)
-e_email = Entry(frame_details, width=30, justify='left', relief='solid')
-e_email.place(x=7, y=100)
+label_email = Label(frame_details, text="Email *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4).place(x=4, y=70)
+input_email = Entry(frame_details, width=30, justify='left', relief='solid')
+input_email.place(x=7, y=100)
 
-l_tel = Label(frame_details, text="Telefone *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_tel.place(x=4, y=130)
-e_tel = Entry(frame_details, width=15, justify='left', relief='solid')
-e_tel.place(x=7, y=160)
+label_tel = Label(frame_details, text="Telefone *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4).place(x=4, y=130)
+input_tel = Entry(frame_details, width=15, justify='left', relief='solid')
+input_tel.place(x=7, y=160)
 
-l_data_nascimento = Label(frame_details, text="Data de Nascimento *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_data_nascimento.place(x=220, y=10)
+label_data_nascimento = Label(frame_details, text="Data de Nascimento *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4).place(x=220, y=10)
 data_nascimento = DateEntry(frame_details, width=18, justify='center', bg='darkblue', foreground='white', borderwidth=2, year=2025)
 data_nascimento.place(x=224, y=40)
 
-l_endereco = Label(frame_details, text="Endereço *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_endereco.place(x=220, y=70)
-e_endereco = Entry(frame_details, width=25, justify='left', relief='solid')
-e_endereco.place(x=224, y=100)
+label_endereco = Label(frame_details, text="Endereço *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4).place(x=220, y=70)
+input_endereco = Entry(frame_details, width=25, justify='left', relief='solid')
+input_endereco.place(x=224, y=100)
 
-l_sexo = Label(frame_details, text="Genero *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_sexo.place(x=127, y=130)
-c_sexo = ttk.Combobox(frame_details, width=13, font=('Ivy 8 bold'), justify='center')
-c_sexo['values'] = ('Mulher Cis', 'Homem Cis', 'Mulher Trans', 'Homem Trans', 'Não Binário')
-c_sexo.place(x=110, y=160)
+label_sexo = Label(frame_details, text="Genero *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4).place(x=127, y=130)
+
+input_sexo = ttk.Combobox(frame_details, width=13, font=('Ivy 8 bold'), justify='center')
+input_sexo['values'] = ('Mulher Cis', 'Homem Cis', 'Mulher Trans', 'Homem Trans', 'Não Binário')
+input_sexo.place(x=110, y=160)
 
 curso_falsos = [fake.job() for _ in range(100)]
 
-l_curso = Label(frame_details, text="Curso *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_curso.place(x=220, y=130)
-c_curso = ttk.Combobox(frame_details, width=24, font=('Ivy 8 bold'), justify='center')
-c_curso['values'] = curso_falsos
-c_curso.place(x=224, y=160)
-
-def filtrar_cursos(event):
-    texto = c_curso.get().lower()
-    filtrados = [curso for curso in curso_falsos if texto in curso.lower()]
-    c_curso['values'] = filtrados or curso_falsos
-    c_curso.event_generate('<Down>')
-
-c_curso.bind("<KeyRelease>", filtrar_cursos)
+label_curso = Label(frame_details, text="Curso *", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
+label_curso.place(x=220, y=130)
+input_curso = ttk.Combobox(frame_details, width=24, font=('Ivy 8 bold'), justify='center')
+input_curso['values'] = curso_falsos
+input_curso.place(x=224, y=160)
 
 def preencher_dados_falsos():
-    e_nome.delete(0, END)
-    e_nome.insert(0, fake.name())
-    e_email.delete(0, END)
-    e_email.insert(0, fake.email())
-    e_tel.delete(0, END)
-    e_tel.insert(0, fake.phone_number())
-    e_endereco.delete(0, END)
-    e_endereco.insert(0, fake.address())
-    c_sexo.set(fake.random_element(elements=c_sexo['values']))
+    input_nome.delete(0, END)
+    input_nome.insert(0, fake.name())
+    input_email.delete(0, END)
+    input_email.insert(0, fake.email())
+    input_tel.delete(0, END)
+    input_tel.insert(0, fake.phone_number())
+    input_endereco.delete(0, END)
+    input_endereco.insert(0, fake.address())
+    input_sexo.set(fake.random_element(elements=input_sexo['values']))
     data = fake.date_of_birth(minimum_age=18, maximum_age=60)
     data_nascimento.set_date(data)
-    c_curso.set(fake.random_element(elements=curso_falsos))
+    input_curso.set(fake.random_element(elements=curso_falsos))
 
 def escolher_imagem():
     global imagem, imagem_string
@@ -135,17 +133,23 @@ def escolher_imagem():
         imagem_string = imagem_path
         nova_imagem = Image.open(imagem_string).resize((130, 130))
         imagem = ImageTk.PhotoImage(nova_imagem)
-        l_imagem.configure(image=imagem)
-        l_imagem.image = imagem
+        label_imagem.configure(image=imagem)
+        label_imagem.image = imagem
         botao_carregar.config(text="Trocar de Foto", width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
 
 imagem = Image.open('Foto.png').resize((130, 130))
 imagem = ImageTk.PhotoImage(imagem)
-l_imagem = Label(frame_details, image=imagem, bg=co1, fg=co6)
-l_imagem.place(x=420, y=10)  
+label_imagem = Label(frame_details, image=imagem, bg=co1, fg=co6)
+label_imagem.place(x=420, y=10)  
 
 botao_carregar = Button(frame_details, command=escolher_imagem, text='CARREGAR FOTO', width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
 botao_carregar.place(x=425 + (130 - 140) // 2, y=150)
+
+def clearFields():
+    input_nome.delete(0, END)
+    input_email.delete(0, END)
+    input_tel.delete(0, END)
+    input_endereco.delete(0, END)
 
 # Classe para o banco de dados
 class RegistrationSystem:
@@ -154,21 +158,47 @@ class RegistrationSystem:
         self.c = self.conn.cursor()
         self.create_table()
 
-    def search_student(self):
-        return self._extracted_from_view_all_students_2("SELECT * FROM student_id")
-    
-    def search_student_by_id(self, student_id):
-        self.c.execute("SELECT *FROM students WHERE id = ?",(student_id))
-        return self.c.fetchone
-    
-    def procurar_aluno():
-        student_id = e_procurar.get()
-        if not student_id.isdigit():
-            messagebox.showerror("Error", "Digite um ID {student_id} válido.")
+    def find_student(self, student_id):
+        student_id = input_procurar.get()
+        row = self.c.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone()
+        if row is None:
             return
-        if resultado := registration_system.search_student_by_id(student_id):
-            _, name, email, phone, gender, birth, address, course, picture = resultado
-            
+        student = Student(*row)
+        clearFields()
+        input_nome.insert(0, student.name)
+        input_email.insert(0, student.email)
+        input_tel.insert(0, student.tel)
+        input_endereco.insert(0, student.endereco)
+        input_sexo.set(student.sexo)
+        data_nascimento.set_date(student.data_nascimento)
+        input_curso.set(student.curso)
+        return True
+
+    def update_student(self, dados):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            UPDATE students SET
+            name = ?,
+            email = ?,
+            phone = ?,
+            gender = ?,
+            birth = ?,
+            address = ?,
+            course = ?,
+            picture = ?
+            WHERE id = ?
+        """, (
+            dados["name"],
+            dados["email"],
+            dados["phone"],
+            dados["gender"],
+            dados["birth"],
+            dados["address"],
+            dados["course"],
+            dados["picture"],
+            dados["id"]
+        ))
+        self.conn.commit()
 
     def create_table(self):
         self.c.execute('''CREATE TABLE IF NOT EXISTS students (
@@ -189,9 +219,8 @@ class RegistrationSystem:
         messagebox.showinfo('Sucesso', 'Registro realizado com sucesso!')
 
     def view_all_students(self):
-        return self.c.execute("SELECT * FROM students")
-
-
+        self.c.execute("SELECT * FROM students")
+        return self.c.fetchall()
 
     def delete_student(self, student_id):
         self.c.execute("DELETE FROM students WHERE id = ?", (student_id))
@@ -201,119 +230,41 @@ class RegistrationSystem:
 registration_system = RegistrationSystem()
 
 def deletar_aluno():
-    student_id = e_procurar.get()
+    student_id = input_procurar.get()
     registration_system.delete_student(student_id=student_id) 
     mostrar_alunos()
 
 def atualizar_aluno():
-    aluno_id = e_procurar.get().strip()
-    if not aluno_id.isdigit():
-        messagebox.showwarning("ID inválido", "Digite um ID válido para atualizar.")
-        return
-
-    dados = {
-        "id": int(aluno_id),
-        "name": e_nome.get(),
-        "email": e_email.get(),
-        "phone": e_tel.get(),
-        "gender": c_sexo.get(),
-        "birth": data_nascimento.get_date().strftime('%d/%m/%Y'),
-        "address": e_endereco.get(),
-        "course": c_curso.get(),
-        "picture": imagem_string if 'imagem_string' in globals() else ""
-    }
-    registration_system.update_student(dados)
-    messagebox.showinfo("Sucesso", "Dados atualizados com sucesso!")
-
-
-def update_student(self, dados):
-    cursor = self.conn.cursor()
-    cursor.execute("""
-        UPDATE students SET
-        name = ?,
-        email = ?,
-        phone = ?,  
-        gender = ?,
-        birth = ?,
-        address = ?,
-        course = ?,
-        picture = ?
-        WHERE id = ?
-    """, (
-        dados["name"],
-        dados["email"],
-        dados["phone"],
-        dados["gender"],
-        dados["birth"],
-        dados["address"],   
-        dados["course"],
-        dados["picture"],
-        dados["id"]
-    ))
-    self.conn.commit()  
-            
-
+        dados = {
+            "name":  input_nome.get(),
+            "email":  input_email.get(),
+            "phone":  input_tel.get(),
+            "gender":  input_sexo.get(),
+            "birth":  data_nascimento.get_date().strftime('%d/%m/%Y'),
+            "address":  input_endereco.get(),
+            "course":  input_curso.get(), 
+            "id": input_procurar.get(),
+            "picture":  imagem_string if 'imagem_string' in globals() else ""
+        }
+        registration_system.update_student(dados)
+        mostrar_alunos()
+        
 def procurar_aluno():
-    aluno_id = e_procurar.get()
-
+    aluno_id = input_procurar.get()
     if not aluno_id:
-        messagebox.showwarning("Aviso", "Digite um ID para procurar.")
-        return
-
-    if resultado := registration_system.buscar_por_id(aluno_id):
-        _extracted_from_procurar_aluno(resultado)
-    else:
-        messagebox.showinfo("Não encontrado", f"Nenhum aluno com ID {aluno_id} foi encontrado.")
-
-
-# TODO Rename this here and in `procurar_aluno`
-def _extracted_from_procurar_aluno(resultado):
-    # Desempacotar os dados retornados
-    name, email, phone, gender, birth, address, course, picture = resultado
-
-    # Preencher os campos da interface
-    e_nome.delete(0, Tk.END)
-    e_nome.insert(0, name)
-
-    e_email.delete(0, Tk.END)
-    e_email.insert(0, email)
-
-    _extracted_from_procurar_aluno(e_tel, phone, c_sexo, gender)
-    # Converter string da data para o formato aceito pelo DateEntry
-    data_formatada = datetime.strptime(birth, '%d/%m/%Y')
-    data_nascimento.set_date(data_formatada)
-
-    _extracted_from_procurar_aluno(e_endereco, address, c_curso, course)
-    # Se quiser lidar com imagem, você pode carregar aqui
-    global imagem_string
-    imagem_string = imagem
-
-
-# TODO Rename this here and in `procurar_aluno`
-def _extracted_from_procurar_aluno(arg0, arg1, arg2, arg3):
-    arg0.delete(0, Tk.END)
-    arg0.insert(0, arg1)
-
-    arg2.set(arg3)
-
-def buscar_por_id(self, aluno_id):
-    cursor = self.conn.cursor()
-    cursor.execute("""
-        SELECT name, email, phone, gender, birth, address, course, picture 
-        FROM students 
-        WHERE id = ?
-    """, (aluno_id,))
-    return cursor.fetchone()
-
+        return messagebox.showwarning("Aviso", "Digite um ID para procurar.")
+    result = registration_system.find_student(aluno_id)
+    if result is None:
+        return messagebox.showinfo("Não encontrado", f"Nenhum aluno com ID {aluno_id} foi encontrado.")
 
 def adicionar_aluno():
-    nome = e_nome.get()
-    email = e_email.get()
-    telefone = e_tel.get()
-    genero = c_sexo.get()
+    nome = input_nome.get()
+    email = input_email.get()
+    telefone = input_tel.get()
+    genero = input_sexo.get()
     data = data_nascimento.get_date().strftime('%d/%m/%Y')
-    endereco = e_endereco.get()
-    curso = c_curso.get()
+    endereco = input_endereco.get()
+    curso = input_curso.get()
     foto = imagem_string if 'imagem_string' in globals() else ""
     if nome and email and telefone:
         dados = (nome, email, telefone, genero, data, endereco, curso, foto)
@@ -354,14 +305,13 @@ mostrar_alunos()
 frame_procurar = Frame(frame_botoes, width=40, height=55, bg=co1, relief=RAISED)
 frame_procurar.grid(row=0, column=0, padx=10, sticky=NSEW)
 
-l_nome = Label(frame_procurar, text= " Procurar aluno [Entra ID]", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
-l_nome.grid(row=0, column=0, padx=0, sticky=NSEW)
-e_procurar = Entry(frame_procurar, width=5, justify='left', relief='solid', font=('Ivy 10'))
-e_procurar.grid(row=1, column=0, padx=0, sticky=NSEW)
-e_procurar.insert(END, "123")
+label_nome = Label(frame_procurar, text= " Procurar aluno [Entra ID]", anchor=NW, font=('Ivy 10'), bg=co1, fg=co4)
+label_nome.grid(row=0, column=0, padx=0, sticky=NSEW)
+input_procurar = Entry(frame_procurar, width=5, justify='left', relief='solid', font=('Ivy 10'))
+input_procurar.grid(row=1, column=0, padx=0, sticky=NSEW)
 
-botao_alterar = Button(frame_procurar, text='Procurar', width=9, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0)
-botao_alterar.grid(row=1, column=1, padx=0, sticky=NSEW)
+botao_procurar = Button(frame_procurar, text='Procurar', width=9, anchor=CENTER, overrelief=RIDGE, font=('Ivy 7 bold'), bg=co1, fg=co0, command=procurar_aluno)
+botao_procurar.grid(row=1, column=1, padx=0, sticky=NSEW)
 
 frame_botoes.columnconfigure(0, weight=1)
 
@@ -387,4 +337,3 @@ botao_deletar.image = app_img_deletar
 botao_deletar.grid(row=4, column=0, padx=10, pady=5, sticky='we')
 
 janela.mainloop()
-
